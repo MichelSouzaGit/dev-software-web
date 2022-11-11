@@ -1,23 +1,27 @@
 import React from "react"
 import { useState, useEffect } from 'react'
-//import { studentsList } from '../dadosExemplo.js'
-import axios from 'axios'
+import { Link } from 'react-router-dom'
+import FirebaseContext from '../../utils/FirebaseContext'
+import StudentService from '../../services/StudentService'
 
-const ListStudent = () => {
+const ListStudentPage = () => {
+    return (
+        <FirebaseContext.Consumer>
+            {value => <ListStudent firebase={value} />}
+        </FirebaseContext.Consumer>
+    )
+}
+
+const ListStudent = (props) => {
 
     const [students, setStudents] = useState([])
 
     useEffect(
-        ()=>{
-            axios.get('http://localhost:3000/students')
-            .then(
-                (res)=>{
-                    setStudents(res.data)
-                }
-            )
-            .catch(
-                (err)=>{
-                    console.log(err)
+        () => {
+            StudentService.listOnSnapshot(
+                props.firebase.getFirestoreDb(),
+                (students) => {
+                    setStudents(students)
                 }
             )
         }
@@ -25,16 +29,41 @@ const ListStudent = () => {
         []
     )
 
-    const generateTableBody = ()=> {
+    function deleteStudent(id) {
+        if (window.confirm('Deseja excluir o estudante?')) {
+            StudentService.delete(
+                props.firebase.getFirestoreDb(),
+                ()=>{
+                    let studentsResult = students.filter(
+                        (student)=>student.id !== id
+                    )
+                    setStudents(studentsResult)
+                },
+                id
+            )
+        }
+    }
 
+    const generateTableBody = () => {
         return students.map(
-            (element,index)=>{
+            (element, index) => {
                 element.key = index
                 return (
                     <tr>
+                        <td>{element.id}</td>
                         <td>{element.name}</td>
                         <td>{element.course}</td>
                         <td>{element.ira}</td>
+                        <td>
+                            <Link to={'/editStudent/' + element.id} className='btn btn-info'>
+                                Editar
+                            </Link>
+                        </td>
+                        <td>
+                            <button className='btn btn-danger' onClick={() => deleteStudent(element.id)}>
+                                Apagar
+                            </button>
+                        </td>
                     </tr>
                 )
             }
@@ -43,13 +72,15 @@ const ListStudent = () => {
 
     return (
         <div>
-            <h1> Listar Estudante </h1>
+            <h1>Listar Estudante</h1>
             <table className='table table-striped'>
                 <thead>
                     <tr>
-                        <th> Nome </th>
-                        <th> Curso </th>
-                        <th> IRA </th>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Curso</th>
+                        <th>IRA</th>
+                        <th colSpan={2}>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -60,4 +91,4 @@ const ListStudent = () => {
     )
 }
 
-export default ListStudent
+export default ListStudentPage;

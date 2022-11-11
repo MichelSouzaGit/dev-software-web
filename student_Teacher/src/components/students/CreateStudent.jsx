@@ -1,9 +1,19 @@
 import React from "react"
 import { useState } from 'react'
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import FirebaseContext from '../../utils/FirebaseContext'
+import StudentService from '../../services/StudentService'
 
-const CreateStudent = () => {
+const CreateStudentPage = () => {
+    return (
+        <FirebaseContext.Consumer>
+            {value => <CreateStudent firebase={value} />}
+        </FirebaseContext.Consumer>
+    )
+}
+
+
+const CreateStudent = (props) => {
 
     const [name, setName] = useState(' ')
     const [course, setCourse] = useState(' ')
@@ -12,28 +22,25 @@ const CreateStudent = () => {
 
     const handleSubmit = (event)=> {
         event.preventDefault()
-        /*console.log(name)
-        console.log(course)
-        console.log(ira)*/
-        const newStudent = {name,course,ira}
-        axios.post('http://localhost:3000/students', newStudent)
-        .then(
-            (res)=>{
-                console.log(res.data.id)
+        const newStudent = {name, course, ira}
+        StudentService.add(
+            props.firebase.getFirestoreDb(),
+            (id)=>{
+                alert(`Estudante ${id} adicionado!`)
                 navigate('/listStudent')
-            }
+            },
+            newStudent
         )
-        .catch(err=>console.log(err))
-
     }
+
 
     return (
         <div style={{marginTop:20}}>
-            <h2>Criar Estudante</h2>
+            <h2> Criar Estudante </h2>
             <form onSubmit={handleSubmit}>
 
                 <div className='form-group'>
-                    <label>Nome: </label>
+                    <label> Nome: </label>
                     <input 
                         type='text'
                         className='form-control'
@@ -79,7 +86,7 @@ const CreateStudent = () => {
                     <input 
                         type='submit' 
                         value='Criar Estudante'
-                        className='btn btn-primary' 
+                        className='btn btn-info' 
                         />
                 </div>
 
@@ -88,4 +95,4 @@ const CreateStudent = () => {
     )
 }
 
-export default CreateStudent
+export default CreateStudentPage;

@@ -14,10 +14,10 @@ export const Rotas = ()=>{
         <Route path='/' element={<Home />} />
         <Route path='/createStudent' element={<CreateStudent />} />
         <Route path='/listStudent' element={<ListStudent />} />
-        <Route path='/editStudent' element={<EditStudent />} />
+        <Route path='/editStudent/:id' element={<EditStudent />} />
         <Route path='/createTeacher' element={<CreateTeacher />} />
         <Route path='/listTeacher' element={<ListTeacher />} />
-        <Route path='/editTeacher' element={<EditTeacher />} />
+        <Route path='/editTeacher/:id' element={<EditTeacher />} />
       </Routes>
     )
 }

@@ -1,31 +1,38 @@
 import React from "react"
 import { useState } from 'react'
-import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import FirebaseContext from '../../utils/FirebaseContext'
+import TeacherService from '../../services/TeacherService'
 
-const CreateTeacher = () => {
+const CreateTeacherPage = () => {
+    return (
+        <FirebaseContext.Consumer>
+            {value => <CreateTeacher firebase={value} />}
+        </FirebaseContext.Consumer>
+    )
+}
+
+
+const CreateTeacher = (props) => {
 
     const [name, setName] = useState(' ')
-    const [siape, setSiape] = useState(' ')
-    const [area, setArea] = useState(' ')
+    const [course, setCourse] = useState(' ')
+    const [salary, setSalary] = useState(0.0)
     const navigate = useNavigate()
 
     const handleSubmit = (event)=> {
         event.preventDefault()
-        /*console.log(name)
-        console.log(siape)
-        console.log(area)*/
-
-        const newTeacher = {name, siape, area}
-        axios.post('http://localhost:3000/teacher', newTeacher)
-        .then(
-            (res) => {
-                console.log(res.data.id)
+        const newTeacher = {name, course, salary}
+        TeacherService.add(
+            props.firebase.getFirestoreDb(),
+            (id)=>{
+                alert(`Professor ${id} adicionado!`)
                 navigate('/listTeacher')
-            }
+            },
+            newTeacher
         )
-        .catch(err=>console.log(err))
     }
+
 
     return (
         <div style={{marginTop:20}}>
@@ -47,29 +54,29 @@ const CreateTeacher = () => {
                 </div>
 
                 <div className='form-group'>
-                    <label> SIAPE: </label>
+                    <label> Curso: </label>
                     <input 
                         type='text'
                         className='form-control'
-                        placeholder='Digite o SIAPE'
+                        placeholder='Digite o curso'
                         onChange={
                             (event)=>{
-                                setSiape(event.target.value)
+                                setCourse(event.target.value)
                             }
                         }
                     />
                 </div>
 
                 <div className='form-group'>
-                    <label> Área: </label>
+                    <label> Salário: </label>
                     <input 
-                        type='text'
+                        type='number'
                         step='any'
                         className='form-control'
-                        placeholder='Digite a Área'
+                        placeholder='Digite o salário'
                         onChange={
                             (event)=>{
-                                setArea(event.target.value)
+                                setSalary(event.target.value)
                             }
                         }
                          />
@@ -79,7 +86,7 @@ const CreateTeacher = () => {
                     <input 
                         type='submit' 
                         value='Criar Professor'
-                        className='btn btn-primary' 
+                        className='btn btn-info' 
                         />
                 </div>
 
@@ -88,4 +95,4 @@ const CreateTeacher = () => {
     )
 }
 
-export default CreateTeacher
+export default CreateTeacherPage;
